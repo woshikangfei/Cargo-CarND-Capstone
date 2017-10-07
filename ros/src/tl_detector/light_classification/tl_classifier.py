@@ -6,7 +6,7 @@ import time
 from PIL import Image
 
 TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph_2.pb'
-DETECTION_THRESHOLD = 0.5
+DETECTION_THRESHOLD = 0.1
 
 class TLClassifier(object):
     def __init__(self):
