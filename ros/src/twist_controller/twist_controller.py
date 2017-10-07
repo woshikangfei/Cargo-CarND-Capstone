@@ -12,7 +12,9 @@ class Controller(object):
     def __init__(self, *args, **kwargs):
         # TODO: Implement
 	self.last_time = None
-	wheel_base = kwargs['wheel_base']
+	self.wheel_base = kwargs['wheel_base']
+	self.vehicle_mass = kwargs['vehicle_mass']
+	self.fuel_capacity = kwargs['fuel_capacity']
 	steer_ratio = kwargs['steer_ratio']
  	min_speed = 0.
 	max_lat_accel = kwargs['max_lat_accel']
@@ -21,8 +23,9 @@ class Controller(object):
 	self.max_steer_angle = kwargs['max_steer_angle']
 	self.brake_deadband = kwargs['brake_deadband']
         
-	self.control_pid = PID(-0.1, -0.002, -12, decel_limit, accel_limit)  
-	self.yaw_controller = YawController(wheel_base, steer_ratio, min_speed, max_lat_accel, self.max_steer_angle)
+	self.control_pid = PID(-100, -0.1, -10, decel_limit, accel_limit)  
+	#self.control_pid = PID(-5, -0.05, 0, decel_limit, accel_limit)    
+	self.yaw_controller = YawController(self.wheel_base, steer_ratio, min_speed, max_lat_accel, self.max_steer_angle)
 	self.lowpassfilter  = LowPassFilter(0.7, 0.1)
 
 
@@ -45,13 +48,14 @@ class Controller(object):
             delta_time = time - self.last_time
             self.last_time = time
 	    # get pid velocity
-	    pid_control = self.control_pid.step(error_linear_velocity, delta_time)
-	    #pid_control = 1.0 - (current_linear_velocity/proposed_linear_velocity)
-            pid_control = max(-1., min(pid_control, 1.))
+	    pid_control = self.control_pid.step(error_linear_velocity, delta_time)	 
+            if pid_control > 0:
+	        throttle = min(1.0, pid_control)  
+                brake = 0.
+            else:
+                throttle = 0.
+	        brake = (self.vehicle_mass + self.fuel_capacity*GAS_DENSITY )*abs(pid_control)*self.wheel_base if abs(pid_control) > self.brake_deadband else 0
 
-            throttle = max(0.0, pid_control)
-            brake = max(0.0, (-pid_control + self.brake_deadband))  # 
-	    
 	    steer = self.yaw_controller.get_steering(proposed_linear_velocity, proposed_angular_velocity, current_linear_velocity)
 	    steer = max(-self.max_steer_angle, min(steer, self.max_steer_angle))
 	    

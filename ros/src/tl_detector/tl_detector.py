@@ -11,6 +11,8 @@ import tf
 import cv2
 import yaml
 import math
+from keras.models import load_model
+#from PIL import Image
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -43,6 +45,10 @@ class TLDetector(object):
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
+	
+	#model = load_model("./light_classification/model.h5")
+        #self.light_classifier = TLClassifier(model)
+
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
@@ -295,7 +301,7 @@ class TLDetector(object):
         cv2.putText(cv_image, text, (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         cv2.circle(cv_image, point_img, 5, (255,255,255), 2)
         cv2.rectangle(cv_image, (bb[0],bb[2]), (bb[1],bb[3]), (255,255,255), 2)
-        image_message = self.bridge.cv2_to_imgmsg(cv_image, "bgr8")
+        image_message = self.bridge.cv2_to_imgmsg(cv_image, "rgb8")
         try:
             self.camera_image_pub.publish(image_message)
         except CvBridgeError as e:
@@ -304,10 +310,16 @@ class TLDetector(object):
         #x, y = self.project_to_image_plane(light.pose.pose.position)
 
         #TODO use light location to zoom in on traffic light in image
-        #image = cv2.resize(cv_image, (224, 224, 3))
+        #image = pil_img = Image.fromarray(cv_image)
+        #box = bb
+        #image = image.crop(box)
+        #cv_img = numpy.array(image, dtype=numpy.uint8)
 
         #Get classification
+	
         return self.light_classifier.get_classification(cv_image)
+	#return light.state
+
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -335,14 +347,16 @@ class TLDetector(object):
         #TODO find the closest visible traffic light (if one exists)
 	closest_light_index = self.get_closest_trafficlight(self.pose.pose, stop_line_positions)
 	next_light_index = self.get_next_trafficlight(self.pose.pose, closest_light_index, stop_line_positions)
+	# loop for self.lights
+	next_light_index = next_light_index % len(self.lights)
 	light = self.lights[next_light_index]
         light_wp = self.get_closest_waypoint(light.pose.pose)
  	
 
         if light:
             state = self.get_light_state(light)
-   	    rospy.loginfo(light_wp)
-	    rospy.loginfo(state)
+   	    #rospy.loginfo(light_wp)
+	    #rospy.loginfo(state)
             return light_wp, state
         
         return -1, TrafficLight.UNKNOWN
