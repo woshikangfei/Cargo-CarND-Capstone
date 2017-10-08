@@ -297,15 +297,15 @@ class TLDetector(object):
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 	
-	cv2.putText(cv_image, 'light in camera coordinate', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-        cv2.putText(cv_image, text, (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-        cv2.circle(cv_image, point_img, 5, (255,255,255), 2)
-        cv2.rectangle(cv_image, (bb[0],bb[2]), (bb[1],bb[3]), (255,255,255), 2)
-        image_message = self.bridge.cv2_to_imgmsg(cv_image, "rgb8")
-        try:
-            self.camera_image_pub.publish(image_message)
-        except CvBridgeError as e:
-            rospy.loginfo(e)
+	#cv2.putText(cv_image, 'light in camera coordinate', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+        #cv2.putText(cv_image, text, (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+        #cv2.circle(cv_image, point_img, 5, (255,255,255), 2)
+        #cv2.rectangle(cv_image, (bb[0],bb[2]), (bb[1],bb[3]), (255,255,255), 2)
+        #image_message = self.bridge.cv2_to_imgmsg(cv_image, "rgb8")
+        #try:
+            #self.camera_image_pub.publish(image_message)
+        #except CvBridgeError as e:
+            #rospy.loginfo(e)
 
         #x, y = self.project_to_image_plane(light.pose.pose.position)
 
