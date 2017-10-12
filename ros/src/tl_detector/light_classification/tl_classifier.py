@@ -5,6 +5,7 @@ import numpy as np
 import time
 from PIL import Image
 
+
 TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph_frcnn-sim.pb'
 DETECTION_THRESHOLD = 0.5
 
@@ -110,7 +111,7 @@ class TLClassifier(object):
         # if 0 < label_id <= len(label_map):
         #     light = label_map[label_id-1]
         #     if light.startswith('Green'):
-        #         return 2
+        #         return 2h
         #     elif light.startswith('Red'):
         #         return 0
         #     elif light.startswith('Yellow'):
