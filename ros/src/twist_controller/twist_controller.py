@@ -23,10 +23,10 @@ class Controller(object):
 	self.max_steer_angle = kwargs['max_steer_angle']
 	self.brake_deadband = kwargs['brake_deadband']
         
-	self.control_pid = PID(-100, -0.1, -10, decel_limit, accel_limit)  
-	#self.control_pid = PID(-5, -0.05, 0, decel_limit, accel_limit)    
+	self.control_pid = PID(-5, -0.002, -12, decel_limit, accel_limit)  
+	#self.control_pid = PID(-10, -0.002, -12, decel_limit, accel_limit)    
 	self.yaw_controller = YawController(self.wheel_base, steer_ratio, min_speed, max_lat_accel, self.max_steer_angle)
-	self.lowpassfilter  = LowPassFilter(0.7, 0.1)
+	self.lowpassfilter  = LowPassFilter(0.5, 0.1)
 
 
     def control(self, twist_cmd, current_velocity, dbw_enabled):
@@ -48,9 +48,10 @@ class Controller(object):
             delta_time = time - self.last_time
             self.last_time = time
 	    # get pid velocity
-	    pid_control = self.control_pid.step(error_linear_velocity, delta_time)	 
+	    pid_control = self.control_pid.step(error_linear_velocity, delta_time)
+       	 
             if pid_control > 0:
-	        throttle = min(1.0, pid_control)  
+	        throttle = min(1.0, pid_control) if abs(pid_control) > self.brake_deadband else 0
                 brake = 0.
             else:
                 throttle = 0.
@@ -65,7 +66,6 @@ class Controller(object):
 	    throttle = 1.
             brake = 0.
             steer = 0.
-	
 	steer = self.lowpassfilter.filt(steer)
         # Return throttle, brake, steer
         return throttle, brake, steer

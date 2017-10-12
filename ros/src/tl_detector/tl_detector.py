@@ -45,9 +45,6 @@ class TLDetector(object):
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
-	
-	#model = load_model("./light_classification/model.h5")
-        #self.light_classifier = TLClassifier(model)
 
         self.listener = tf.TransformListener()
 
@@ -57,7 +54,8 @@ class TLDetector(object):
         self.state_count = 0
 
         # Added parameters for project_to_image_plane
-	self.camera_param = (fx, fy, cx, cy) = (2552.7, 2280.5, 366, 652.4)  # Manually tweaked
+	#self.camera_param = (fx, fy, cx, cy) = (2552.7, 2280.5, 366, 652.4)  # Manually tweaked
+        self.camera_param = (fx, fy, cx, cy) = (2650, 2250, 366, 652.4) 
 	self.camera_image_pub = rospy.Publisher('/image_color_info', Image, queue_size=1)
 
         rospy.spin()
@@ -270,7 +268,7 @@ class TLDetector(object):
         point_img, point_cam = self.project_car_to_image(point_cc)
 
         # Bounding box for traffic light
-        light_width, light_height = 0.8, 2.2  # In meter. Manually tweaked
+        light_width, light_height = 1., 2.5  # In meter. Manually tweaked
         bb = self.bounding_box(point_cc, light_width, light_height)
 
         return (point_img, bb, point_cam)
@@ -301,13 +299,19 @@ class TLDetector(object):
         #cv2.putText(cv_image, text, (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
         #cv2.circle(cv_image, point_img, 5, (255,255,255), 2)
         #cv2.rectangle(cv_image, (bb[0],bb[2]), (bb[1],bb[3]), (255,255,255), 2)
-        #image_message = self.bridge.cv2_to_imgmsg(cv_image, "rgb8")
-        #try:
-            #self.camera_image_pub.publish(image_message)
-        #except CvBridgeError as e:
-            #rospy.loginfo(e)
+        
 
         #x, y = self.project_to_image_plane(light.pose.pose.position)
+
+	#cv_image = cv_image[bb[2]:bb[3], bb[0]:bb[1]]
+        #if cv_image.size < 1000:
+        #      return TrafficLight.UNKNOWN
+        #cm_image = cv2.resize(cv_image,(85, 256), interpolation = cv2.INTER_CUBIC)
+	#image_message = self.bridge.cv2_to_imgmsg(cv_image, "rgb8")
+        #try:
+        #    self.camera_image_pub.publish(image_message)
+        #except CvBridgeError as e:
+        #    rospy.loginfo(e)
 
         #TODO use light location to zoom in on traffic light in image
         #image = pil_img = Image.fromarray(cv_image)
@@ -317,8 +321,8 @@ class TLDetector(object):
 
         #Get classification
 	
-        return self.light_classifier.get_classification(cv_image)
-	#return light.state
+        #return self.light_classifier.get_classification(cv_image)
+	return light.state
 
 
     def process_traffic_lights(self):
