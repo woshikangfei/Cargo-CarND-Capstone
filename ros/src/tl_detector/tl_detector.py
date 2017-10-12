@@ -321,8 +321,8 @@ class TLDetector(object):
 
         #Get classification
 	
-        #return self.light_classifier.get_classification(cv_image)
-	return light.state
+        return self.light_classifier.get_classification(cv_image)
+	#return light.state
 
 
     def process_traffic_lights(self):

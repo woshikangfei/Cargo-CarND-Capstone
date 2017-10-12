@@ -23,8 +23,8 @@ class Controller(object):
 	self.max_steer_angle = kwargs['max_steer_angle']
 	self.brake_deadband = kwargs['brake_deadband']
         
-	self.control_pid = PID(-5, -0.002, -12, decel_limit, accel_limit)  
-	#self.control_pid = PID(-10, -0.002, -12, decel_limit, accel_limit)    
+	self.control_pid = PID(200, 0.002, 5, decel_limit, accel_limit)  
+	#self.control_pid = PID(10, 0.002, 12, decel_limit, accel_limit)    
 	self.yaw_controller = YawController(self.wheel_base, steer_ratio, min_speed, max_lat_accel, self.max_steer_angle)
 	self.lowpassfilter  = LowPassFilter(0.5, 0.1)
 
@@ -37,7 +37,7 @@ class Controller(object):
         current_angular_velocity = current_velocity.twist.angular.z
 	
 	# CTE: error_linear_velocity
-	error_linear_velocity = current_linear_velocity - proposed_linear_velocity 
+	error_linear_velocity = proposed_linear_velocity - current_linear_velocity
   
         if(dbw_enabled == False):
             self.control_pid.reset()
