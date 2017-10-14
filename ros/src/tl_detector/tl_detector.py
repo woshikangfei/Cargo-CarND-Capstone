@@ -11,7 +11,6 @@ import tf
 import cv2
 import yaml
 import math
-from keras.models import load_model
 
 STATE_COUNT_THRESHOLD = 2
 
@@ -35,7 +34,7 @@ class TLDetector(object):
         rely on the position of the light and the camera image to predict it.
         '''
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
+        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1)
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
@@ -74,7 +73,9 @@ class TLDetector(object):
 
         """
         self.has_image = True
+        time0 = rospy.get_time()
         self.camera_image = msg
+        
         light_wp, state = self.process_traffic_lights()
         '''
         Publish upcoming red lights at camera frequency.
@@ -93,6 +94,9 @@ class TLDetector(object):
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
+        time1 = rospy.get_time()
+        delta_time = time1- time0
+        rospy.loginfo("classifier time: {}".format(delta_time))
 
     def dist(self, p1, p2):
         x, y, z = p1.x - p2.x, p1.y - p2.y, p1.z - p2.z
@@ -222,7 +226,9 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
         #Get classification
-        return self.light_classifier.get_classification(cv_image)
+	state = self.light_classifier.get_classification(cv_image)
+
+        return state
 	#return light.state
 
 
@@ -258,11 +264,7 @@ class TLDetector(object):
         light_wp = self.get_closest_waypoint(light.pose.pose)
  	
         if light:
-            time0 = rospy.get_time()
             state = self.get_light_state(light)
-            time1 = rospy.get_time()
-            delta_time = time1- time0
-            rospy.loginfo("classifier time: {}".format(delta_time))
             return light_wp, state
         
         return -1, TrafficLight.UNKNOWN
