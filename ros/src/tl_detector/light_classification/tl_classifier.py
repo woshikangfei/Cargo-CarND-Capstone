@@ -24,7 +24,20 @@ class TLClassifier(object):
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
 
-        with self.detection_graph.as_default():
+	    self.sess = tf.Session(graph=self.detection_graph)
+
+	self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
+        # Each box represents a part of the image where a particular object was detected.
+        self.detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
+
+        # Each score represent how level of confidence for each of the objects.
+        # Score is shown on the result image, together with the class label.
+        self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
+        self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
+    	self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
+
+        """
+	with self.detection_graph.as_default():
             with tf.Session(graph=self.detection_graph) as sess:
                 # Definite input and output Tensors for detection_graph
                 self.sess = sess
@@ -38,6 +51,7 @@ class TLClassifier(object):
                 self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
                 self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
                 self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
+        """
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
@@ -49,17 +63,23 @@ class TLClassifier(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
+
+	if 'session' in locals() and session is not None:
+    	    print('Close interactive session')
+            session.close()
+
         time_start = time.time()
         #TODO implement light color prediction
         #image_np = self.__preprocess_image(image)
-        image_np = image 
+       	image_np = image 
         
-        # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+       	# Expand dimensions since the model expects images to have shape: [1, None, None, 3]
         image_np_expanded = np.expand_dims(image_np, axis=0)
         time0 = time.time()
 
         # Actual detection.
-        (boxes, scores, classes, num) = self.sess.run(
+        with self.detection_graph.as_default():
+            (boxes, scores, classes, num) = self.sess.run(
                     [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
                     feed_dict={self.image_tensor: image_np_expanded})
 
