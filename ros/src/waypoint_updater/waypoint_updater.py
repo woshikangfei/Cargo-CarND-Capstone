@@ -49,7 +49,7 @@ class WaypointUpdater(object):
         self.final_waypoints_pub = rospy.Publisher('/final_waypoints', Lane, queue_size=1)
         
         # TODO: Add other member variables you need below
-	rate = rospy.Rate(2)
+	rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             self.loop()
             rate.sleep()
