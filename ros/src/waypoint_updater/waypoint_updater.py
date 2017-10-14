@@ -61,10 +61,12 @@ class WaypointUpdater(object):
             closest_index = self.get_closest_waypoint(self.current_pose.pose)
             # get the first waypoint index currently ahead of the car 
             next_index = self.get_next_waypoint(self.current_pose.pose, closest_index)  
+
             # lane title 
 	    lane = Lane()
             lane.header.frame_id = '/world'
-            lane.header.stamp = rospy.Time(0)         
+            lane.header.stamp = rospy.Time(0)   
+      
             # safety stop distance 
 	    min_dist_stop = self.current_velocity**2 / (2.0 * MAX_DECEL) + SAFE_DIST
 	    # generate final_waypoints and publish
