@@ -6,7 +6,7 @@ import time
 from PIL import Image
 
 
-TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph_frcnn-sim.pb'
+TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph-sim-101201.pb'
 DETECTION_THRESHOLD = 0.5
 
 class TLClassifier(object):
@@ -14,7 +14,6 @@ class TLClassifier(object):
 	self.state = TrafficLight.UNKNOWN
 
         #TODO load classifier
-
 	self.detection_graph = tf.Graph()
 
         with self.detection_graph.as_default():
@@ -52,25 +51,22 @@ class TLClassifier(object):
         """
         time_start = time.time()
         #TODO implement light color prediction
-
-
-        image_np = self.__preprocess_image(image)
+        #image_np = self.__preprocess_image(image)
+        image_np = image 
+        
         # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
         image_np_expanded = np.expand_dims(image_np, axis=0)
-
         time0 = time.time()
 
-                # Actual detection.
+        # Actual detection.
         (boxes, scores, classes, num) = self.sess.run(
                     [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
                     feed_dict={self.image_tensor: image_np_expanded})
 
         time1 = time.time()
-                #print("Time in milliseconds", (time1 - time0) * 1000)
-                #print(boxes, scores, classes)
 
         output = self.__postprocessing_detected_box(scores[0], classes[0])
-        rospy.logerr('Time in milliseconds' + str(time1-time0)+' Result:'+self.__traffic_id_to_name(output))
+        rospy.logerr('Time in seconds' + str(time1-time_start)+' Result:'+self.__traffic_id_to_name(output))
         return output
 
 
@@ -88,12 +84,11 @@ class TLClassifier(object):
             if scores[i] < DETECTION_THRESHOLD:
                 break
             vote.append(self.__label_map_to_traffic_light(int(classes[i])))
-        rospy.logerr('Votes' + str(vote))
+        #rospy.logerr('Votes' + str(vote))
         if vote:
             return max(vote, key=vote.count)
         else:
             return 4
-
 
     def __label_map_to_traffic_light(self, label_id):
         traffic_label = int(label_id) - 1
@@ -104,19 +99,4 @@ class TLClassifier(object):
     def __traffic_id_to_name(self, traffic_id):
         traffic_light_names = ['Red','Yellow','Green','Error','Unknown']
         return traffic_light_names[traffic_id]
-        #if  label_id in [1,2,3,5]:
 
-        # label_map = ['Green', 'Red', 'GreenLeft', 'GreenRight', 'RedLeft', 'RedRight', 'Yellow', 'off', 'RedStraight',
-        #              'GreenStraight', 'GreenStraightLeft', 'GreenStraightRight', 'RedStraightLeft', 'RedStraightRight']
-        # if 0 < label_id <= len(label_map):
-        #     light = label_map[label_id-1]
-        #     if light.startswith('Green'):
-        #         return 2h
-        #     elif light.startswith('Red'):
-        #         return 0
-        #     elif light.startswith('Yellow'):
-        #         return 1
-        #     else:
-        #         return 4 # off
-        # else:
-        #     return 4
