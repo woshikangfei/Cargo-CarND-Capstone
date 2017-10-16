@@ -92,7 +92,6 @@ class DBWNode(object):
                                                              self.dbw_enabled)
             self.publish(throttle, brake, steer)
             
-
     def publish(self, throttle, brake, steer):
         tcmd = ThrottleCmd()
         tcmd.enable = True
