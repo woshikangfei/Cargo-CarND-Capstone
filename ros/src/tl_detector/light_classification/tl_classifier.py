@@ -6,7 +6,7 @@ import time
 from PIL import Image
 
 
-TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph-sim-101201.pb'
+TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph_ssdmobile.pb'
 DETECTION_THRESHOLD = 0.5
 
 class TLClassifier(object):
