@@ -95,7 +95,8 @@ class WaypointUpdater(object):
             		wp.pose.pose.orientation = self.base_waypoints.waypoints[index].pose.pose.orientation
 		        final_waypoints.append(wp)
                     # set speed to stop before traffic light
-		    lane.waypoints = self.decelerate(final_waypoints)
+                    if len(final_waypoints) != 0:
+		        lane.waypoints = self.decelerate(final_waypoints)
 		else:
 		    rospy.loginfo("no braking since too far to traffic light")
 		    lane.waypoints = self.base_waypoints.waypoints[next_index : (next_index + LOOKAHEAD_WPS)]
