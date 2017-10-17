@@ -42,7 +42,13 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
+
+        self.model = rospy.get_param('~model_path')
+        rospy.loginfo(self.model)
+        if self.model == "None":
+            self.light_classifier = None
+        else:
+            self.light_classifier = TLClassifier(self.model)
 
         self.listener = tf.TransformListener()
 
@@ -52,6 +58,7 @@ class TLDetector(object):
         self.state_count = 0
 
 	self.camera_image_pub = rospy.Publisher('/image_color_info', Image, queue_size=1)
+        
 
         rospy.spin()
 
