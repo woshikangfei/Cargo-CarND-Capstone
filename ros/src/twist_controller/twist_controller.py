@@ -54,7 +54,7 @@ class Controller(object):
                 brake = 0.
             else:
                 throttle = 0.
-	        brake = (self.vehicle_mass + self.fuel_capacity*GAS_DENSITY )*abs(pid_control)*self.wheel_base if abs(pid_control) > self.brake_deadband else 0
+	        brake = (self.vehicle_mass + self.fuel_capacity*GAS_DENSITY )*abs(pid_control)*self.wheel_base*2. if abs(pid_control) > self.brake_deadband else 0
 
 	    steer = self.yaw_controller.get_steering(proposed_linear_velocity, proposed_angular_velocity, current_linear_velocity)
 	    steer = max(-self.max_steer_angle, min(steer, self.max_steer_angle))
@@ -62,7 +62,7 @@ class Controller(object):
 	else:
 	    # reset self.last_time
 	    self.last_time = rospy.get_time()
-	    throttle = 1.
+	    throttle = 0.5
             brake = 0.
             steer = 0.
 	steer = self.lowpassfilter.filt(steer)
