@@ -68,7 +68,10 @@ class WaypointUpdater(object):
             lane.header.stamp = rospy.Time(0)   
       
             # safety stop distance 
-	    min_dist_stop = self.current_velocity**2 / (2.0 * MAX_DECEL) + SAFE_DIST
+            if self.current_velocity is not None:
+	        min_dist_stop = self.current_velocity**2 / (2.0 * MAX_DECEL) + SAFE_DIST
+            else:
+	        min_dist_stop = SAFE_DIST
 	    # generate final_waypoints and publish
 	    if self.traffic_waypoint and self.traffic_waypoint != -1:
 		tl_dist = self.distance(self.base_waypoints.waypoints, closest_index, self.traffic_waypoint)
