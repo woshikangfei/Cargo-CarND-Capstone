@@ -98,7 +98,7 @@ class TLClassifier(object):
             (im_height, im_width, 3)).astype(np.uint8)
 
     def __postprocessing_detected_box(self, scores, classes):
-        candidate_num = 5
+        candidate_num = 4
         vote = []
         for i in range(candidate_num):
             if scores[i] < DETECTION_THRESHOLD:
