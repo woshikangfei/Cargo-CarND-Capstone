@@ -6,7 +6,8 @@ import time
 from PIL import Image
 
 
-TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph_ssd_inception_sim.pb'
+#TRAFFIC_CLASSIFIER_MDOEL_PATH = './model/frozen_inference_graph_ssd_inception_sim.pb'
+TRAFFIC_CLASSIFIER_MDOEL_PATH = rospy.get_param("/traffic_light_classifier_config")
 DETECTION_THRESHOLD = 0.5
 
 class TLClassifier(object):
