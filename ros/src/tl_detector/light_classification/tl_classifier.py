@@ -87,7 +87,7 @@ class TLClassifier(object):
         time1 = time.time()
 
         output = self.__postprocessing_detected_box(scores[0], classes[0])
-        rospy.logerr('Time in seconds' + str(time1-time_start)+' Result:'+self.__traffic_id_to_name(output))
+        rospy.loginfo('Time in seconds' + str(time1-time_start)+' Result:'+self.__traffic_id_to_name(output))
         return output
 
 
