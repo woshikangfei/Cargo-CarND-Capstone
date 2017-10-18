@@ -141,7 +141,7 @@ Sometimes there are Blas SGEMM Internal Error or cuDNN can not launch on my xps 
 
 Qitong confirmed that there are no problem on his PC Ubuntu system.
 
-Our conclusion is that these 2 problems may be caused by my xps 9560 CUDA and cuDNN library installation.
+Our conclusion is that these 2 problems may be caused by xps 9560 CUDA and cuDNN library installation.
 
 2. Brake CMD Type Percent
 
