@@ -11,7 +11,6 @@ ONE_MPH = 0.44704
 class Controller(object):
     def __init__(self, *args, **kwargs):
         # TODO: Implement
-	self.last_time = None
 	self.wheel_base = kwargs['wheel_base']
 	self.vehicle_mass = kwargs['vehicle_mass']
 	self.fuel_capacity = kwargs['fuel_capacity']
@@ -22,8 +21,9 @@ class Controller(object):
 	decel_limit = kwargs['decel_limit']
 	self.max_steer_angle = kwargs['max_steer_angle']
 	self.brake_deadband = kwargs['brake_deadband']
-        
-	self.control_pid = PID(200, 0.002, 5, decel_limit, accel_limit)    
+        self.max_throttle_percentage = kwargs['max_throttle_percentage']
+ 	self.max_braking_percentage = kwargs['max_braking_percentage']
+            
 	self.yaw_controller = YawController(self.wheel_base, steer_ratio, min_speed, max_lat_accel, self.max_steer_angle)
 	self.lowpassfilter  = LowPassFilter(0.5, 0.1)
 
@@ -35,36 +35,29 @@ class Controller(object):
  	current_linear_velocity = current_velocity.twist.linear.x
         current_angular_velocity = current_velocity.twist.angular.z
 	
-	# CTE: error_linear_velocity
-	error_linear_velocity = proposed_linear_velocity - current_linear_velocity
+	# delta_linear_velocity
+	delta_linear_velocity = proposed_linear_velocity - current_linear_velocity
   
-        if(dbw_enabled == False):
-            self.control_pid.reset()
-        
-	if(dbw_enabled and self.last_time):
-            # get time interval
-            time = rospy.get_time()
-            delta_time = time - self.last_time
-            self.last_time = time
-	    # get pid velocity
-	    pid_control = self.control_pid.step(error_linear_velocity, delta_time)
-       	 
-            if pid_control > 0:
-	        throttle = min(1.0, pid_control) if abs(pid_control) > self.brake_deadband else 0
-                brake = 0.
-            else:
-                throttle = 0.
-	        brake = (self.vehicle_mass + self.fuel_capacity*GAS_DENSITY )*abs(pid_control)*self.wheel_base*2. if abs(pid_control) > self.brake_deadband else 0
-
+        brake = 0.
+        throttle = 0.
+	if dbw_enabled:
+	    if proposed_linear_velocity > current_linear_velocity:
+                if delta_linear_velocity / proposed_linear_velocity > 0.3:
+		    throttle = self.max_throttle_percentage
+       		else:
+     		    throttle = max((delta_linear_velocity / proposed_linear_velocity)/0.3*self.max_throttle_percentage, self.max_throttle_percentage)      
+       	    elif current_linear_velocity > 1:
+		brake = 3250*self.max_braking_percentage*-1 
+	    else:
+		brake = 3250*0.01
+ 
 	    steer = self.yaw_controller.get_steering(proposed_linear_velocity, proposed_angular_velocity, current_linear_velocity)
 	    steer = max(-self.max_steer_angle, min(steer, self.max_steer_angle))
 	    
 	else:
-	    # reset self.last_time
-	    self.last_time = rospy.get_time()
-	    throttle = 0.5
+	    throttle = 0.
             brake = 0.
             steer = 0.
 	steer = self.lowpassfilter.filt(steer)
-        # Return throttle, brake, steer
+ 	rospy.loginfo("throttle:"+str(throttle)+"brake:"+str(brake)+"steer"+str(steer))
         return throttle, brake, steer

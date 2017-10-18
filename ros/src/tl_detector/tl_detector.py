@@ -103,7 +103,7 @@ class TLDetector(object):
         self.state_count += 1
         time1 = rospy.get_time()
         delta_time = time1- time0
-        rospy.loginfo("classifier time: {}".format(delta_time))
+        #rospy.loginfo("classifier time: {}".format(delta_time))
 
     def dist(self, p1, p2):
         x, y, z = p1.x - p2.x, p1.y - p2.y, p1.z - p2.z

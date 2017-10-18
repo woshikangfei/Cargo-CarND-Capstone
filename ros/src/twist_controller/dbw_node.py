@@ -46,6 +46,10 @@ class DBWNode(object):
         max_lat_accel = rospy.get_param('~max_lat_accel', 3.)
         max_steer_angle = rospy.get_param('~max_steer_angle', 8.)
 
+	# get param from site or sim launch 
+	max_throttle_percentage = rospy.get_param('~max_throttle_percentage')
+        max_braking_percentage = rospy.get_param('~max_braking_percentage')
+
         self.steer_pub = rospy.Publisher('/vehicle/steering_cmd',
                                          SteeringCmd, queue_size=1)
         self.throttle_pub = rospy.Publisher('/vehicle/throttle_cmd',
@@ -63,7 +67,9 @@ class DBWNode(object):
             'wheel_base'        : wheel_base,
             'steer_ratio'       : steer_ratio,
             'max_lat_accel'     : max_lat_accel,
-            'max_steer_angle'   : max_steer_angle
+            'max_steer_angle'   : max_steer_angle,
+	    'max_throttle_percentage'	: max_throttle_percentage,
+	    'max_braking_percentage'	: max_braking_percentage	
         }
 	
 	self.current_velocity = None
