@@ -40,6 +40,8 @@ It is necessary to calculate brake torque with the following since Brake CMD typ
 
 `Brake torque = (vehicle_mass + fuel_capacity * GAS_DENSITY) * deceleration *  wheel_radius`
 
+The above simple equation is based on assumption that the ground can absolutely provide enough friction force for tires. Anyway this is enough for our case here. 
+
 According to `<param name="decel_limit" value="-1." />` in `dbw.launch`, the estimated maximum brake torque for Carla is about 428Nm, only 0.13 times of Carla maximum working brake torque 3250Nm.
 
 In this case, `max_throttle_percentate` and `max_braking_percentage` for Carla are assigned 0.1 in dbw.launch.
@@ -69,6 +71,8 @@ In this case, `max_throttle_percentate` and `max_braking_percentage` for Carla a
 #### Inception model
 
 The model we use to traffic light detection is transferred from Tensorflow objecct detection API ssd-inception model.
+
+There are two separately classifier model, one for simulator and one for Carla. All these parameters are integrated in tl_detector.launch and tl_detector_site.launch.
 
 The original pre-trained model is downloaded from tensorflow/models. One data are from Bosch and the other from our classmate Shyam Jagannathan shared in slack, which is taken from simulator and rosbag.
 
