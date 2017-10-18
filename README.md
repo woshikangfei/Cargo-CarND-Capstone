@@ -74,11 +74,11 @@ The original pre-trained model is downloaded from tensorflow/models. One data ar
 
 We use the Tensorflow Object-Detection API to train the model with some hyperparameters tuned in the config file and a project-specific label-map file (number of classes to 4, proposal region to 10 and second stage batch size to 8, max detection to 4 and max per class to 4). we get the models after training around 20K step with final loss under 0.5.
 
-At first, we train the model with Bosch data (rgb version and additional set) but traffic light detection perform poor and takes a lot of time. Then we used task-specific data only.
+At first, we train the model with Bosch data (rgb version and additional set) but traffic light detection perform poor and takes a lot of time. Then we train with task-specific data only.
 
 We tried with ssd-mobile, ssd-inception, faster-rcnn and rcfn as pre-trained model separately. The later-two are good at accuracy but the model size is over 100M and need additional 0.03s (about 60% more) time to detect. We compare these four models from the processing time, accuracy and model size, finally we decide to use ssd-Inception model.
 
-The traffic light classifier loads the model during initiating, then processes the image and outputs the classification and probability of detected box. We set 0.5 as the accepting threshold, and all the accepted ones will have a majority vote, the vote result will be our final judgment. The whole process takes around 0.05s for ssd-Inception and 0.08s for Faster-RCNN model (both test on Qitong Ubuntu16.04 with GTX1080Ti), both satisfactory with designed requirement time to response -- 0.1s (10Hz).
+The traffic light classifier loads the model during initiating, then processes the image and outputs the classification and probability of detected box. We set 0.5 as the accepting threshold, and all the accepted ones will have a majority vote, the vote result will be our final judgment. The whole process takes around 0.05s for ssd-Inception and 0.08s for Faster-RCNN model (both testing on Qitong Ubuntu16.04 system with GTX1080Ti), both satisfactory with designed requirement time to response -- 0.1s (10Hz).
 
 There are some important tips shown blow.
 1. Speed Limit
