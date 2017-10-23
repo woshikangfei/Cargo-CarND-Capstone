@@ -20,9 +20,9 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
 
 In slack channel, a lot of classmates discussed about the difference between simulator and Carla.
 
-By the way, it is hard to tune PID parameters to get linear distribution in small range from `-max_braking_percentage` to `max_throttle_percentate`.
+By the way, it is hard to tune PID parameters to get linear distribution in a small range from `-max_braking_percentage` to `max_throttle_percentate`.
 
-According to these information, we changed control from PID to linear control and set different throttle limit and brake limit for Simulator and Carla in launch files.
+According to these information, we changed PID control to linear control and set different throttle limit and brake limit for Simulator and Carla in launch files.
 
     if proposed_linear_velocity > current_linear_velocity:
         if delta_linear_velocity / proposed_linear_velocity > 0.3:
@@ -36,13 +36,13 @@ According to these information, we changed control from PID to linear control an
 
 #### Brake torque calculation
 
-It is necessary to calculate brake torque with the following since Brake CMD type is `TORQUE`.
+It is necessary to calculate brake torque with the following equation since Brake CMD type is `TORQUE`.
 
 `Brake torque = (vehicle_mass + fuel_capacity * GAS_DENSITY) * deceleration *  wheel_radius`
 
 The above simple equation is based on assumption that the ground can absolutely provide enough friction force for tires. Anyway this is enough for our case here. 
 
-According to `<param name="decel_limit" value="-1." />` in `dbw.launch`, the estimated maximum brake torque for Carla is about 428Nm, only 0.13 times of Carla maximum working brake torque 3250Nm.
+According to `<param name="decel_limit" value="-1." />` in `dbw.launch`, the estimated maximum brake torque for Carla is about 428Nm, only one tenth of Carla maximum working brake torque 3250Nm.
 
 In this case, `max_throttle_percentate` and `max_braking_percentage` for Carla are assigned 0.1 in dbw.launch.
 
@@ -74,13 +74,13 @@ The model we use to traffic light detection is transferred from Tensorflow objec
 
 There are two separately classifier model, one for simulator and one for Carla. All these parameters are integrated in tl_detector.launch and tl_detector_site.launch.
 
-The original pre-trained model is downloaded from tensorflow/models. One data are from Bosch and the other from our classmate Shyam Jagannathan shared in slack, which is taken from simulator and rosbag.
+The original pre-trained model is downloaded from tensorflow/models. One dataset is from Bosch and the other dataset is from Slack shared by our classmate Shyam Jagannathan, which is taken from simulator and rosbag.
 
 We use the Tensorflow Object-Detection API to train the model with some hyperparameters tuned in the config file and a project-specific label-map file (number of classes to 4, proposal region to 10 and second stage batch size to 8, max detection to 4 and max per class to 4). we get the models after training around 20K step with final loss under 0.5.
 
-At first, we train the model with Bosch data (rgb version and additional set) but traffic light detection perform poor and takes a lot of time. Then we train with task-specific data only.
+At first, we train the model with Bosch dataset (rgb version and additional set) but traffic light detection performs poor and takes a lot of time. Then we train with task-specific dataset only.
 
-We tried with ssd-mobile, ssd-inception, faster-rcnn and rcfn as pre-trained model separately. The later-two are good at accuracy but the model size is over 100M and need additional 0.03s (about 60% more) time to detect. We compare these four models from the processing time, accuracy and model size, finally we decide to use ssd-Inception model.
+We tried with ssd-mobile, ssd-inception, faster-rcnn and rcfn as pre-trained model separately. The later two are good at accuracy but the model size is over 100M and need additional 0.03s (about 60% more) time to detect. We compare these four models from the processing time, accuracy and model size, finally we decide to use ssd-Inception model.
 
 The traffic light classifier loads the model during initiating, then processes the image and outputs the classification and probability of detected box. We set 0.5 as the accepting threshold, and all the accepted ones will have a majority vote, the vote result will be our final judgment. The whole process takes around 0.05s for ssd-Inception and 0.08s for Faster-RCNN model (both testing on Qitong Ubuntu16.04 system with GTX1080Ti), both satisfactory with designed requirement time to response -- 0.1s (10Hz).
 
@@ -90,6 +90,7 @@ There are some important tips shown blow.
   * 10 km/h for Carla
 
 These above information can be gotten from `ros/src/waypoint_loader/launch`.
+
 2. Brake CMD Type
 
 A lot of people including me feel hard to make vehicle stop in simulator. The reason is that we always ignoring Brake CMD Type setting.
@@ -141,7 +142,7 @@ Thanks a lot for support from *John Chen*、 *Anthony Sarkis* and others classma
 
 1. Blas SGEMM and cuDNN Error
 
-Sometimes there are Blas SGEMM Internal Error or cuDNN can not launch on my xps 9560 Ubuntu 16.04 system, but most of time there are no problem. These problems also disappear with repeating program again.  
+Sometimes there are Blas SGEMM Internal Error or cuDNN can not launch on my xps 9560 Ubuntu 16.04 system, but most of time there are no problem. These problems also disappear with restart program again.  
 
 Qitong confirmed that there are no problem on his PC Ubuntu system.
 
@@ -149,7 +150,7 @@ Our conclusion is that these 2 problems may be caused by xps 9560 CUDA and cuDNN
 
 2. Brake CMD Type Percent
 
-An interesting issue is that the car in simulator can not stop before traffic light when switches to Brake CMD Type from `TORQUE` to `PERCENT`, through John Chen team Vulture seems no problem.
+An interesting issue is that the car in simulator can not stop before traffic light when switches to Brake CMD Type from `TORQUE` to `PERCENT`, even through John Chen team Vulture seems OK.
 
 ### Native Installation
 
